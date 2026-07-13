@@ -12,3 +12,7 @@ helm template cert-manager cert-manager \
   --values components/platform/cert-manager/values.yaml \
   >/dev/null
 '''
+
+[tasks."validate:cert-manager-config"]
+description = "Render the local cert-manager issuer and certificate config"
+run = "kubectl kustomize components/platform/cert-manager-config >/dev/null"

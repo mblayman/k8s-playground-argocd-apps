@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: cert-manager
     app.kubernetes.io/part-of: k8s-playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
 spec:
   project: default
   sources:
