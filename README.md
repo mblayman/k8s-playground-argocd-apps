@@ -19,4 +19,6 @@ Validate Helm-backed components:
 ```sh
 mise run validate:cert-manager
 mise run validate:cert-manager-config
+mise run validate:istio-base
+mise run validate:istiod
 ```
