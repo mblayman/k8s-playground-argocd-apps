@@ -22,3 +22,27 @@ mise run validate:cert-manager-config
 mise run validate:istio-base
 mise run validate:istiod
 ```
+
+## Sync Wave Contract
+
+Use sync waves as coarse platform dependency bands, not arbitrary ordering numbers. Keep future child `Application` manifests in this table unless there is a concrete reason to add a new band.
+
+| Wave | Purpose |
+| ---: | --- |
+| `10` | Core platform controllers, such as cert-manager. |
+| `20` | Configuration consumed by core controllers, such as cert-manager issuers and certificates. |
+| `30` | Istio base APIs, CRDs, and validating webhook bootstrap. |
+| `40` | Istio control plane runtime, currently `istiod` with revision `stable`. |
+| `50` | Istio ingress gateway or other mesh data-plane gateway components. |
+| `60` | Platform-owned mesh and ingress configuration, such as Gateway API resources and namespace-level mesh defaults. |
+| `70` | Application workloads and services. |
+| `80` | App-owned routes and mesh policies, such as `HTTPRoute`, `AuthorizationPolicy`, and `PeerAuthentication`. |
+| `90` | Observability components and dashboards. |
+
+Guardrails:
+
+- Keep Istio validation fail-closed in steady state with `failurePolicy: Fail`.
+- Do not create Istio custom resources before wave `40` has installed a healthy `istiod`.
+- Put resources that depend on a CRD in a later wave than the CRD owner.
+- Put resources that depend on an admission webhook in a later wave than the controller serving that webhook.
+- Avoid inventing new sync wave numbers unless the dependency cannot fit an existing band.
