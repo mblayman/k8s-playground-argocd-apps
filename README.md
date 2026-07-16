@@ -22,6 +22,7 @@ mise run validate:cert-manager-config
 mise run validate:istio-base
 mise run validate:istiod
 mise run validate:istio-cni
+mise run validate:istio-ingressgateway
 ```
 
 ## Sync Wave Contract
