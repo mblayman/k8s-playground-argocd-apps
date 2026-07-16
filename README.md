@@ -21,6 +21,7 @@ mise run validate:cert-manager
 mise run validate:cert-manager-config
 mise run validate:istio-base
 mise run validate:istiod
+mise run validate:istio-cni
 ```
 
 ## Sync Wave Contract
@@ -33,6 +34,7 @@ Use sync waves as coarse platform dependency bands, not arbitrary ordering numbe
 | `20` | Configuration consumed by core controllers, such as cert-manager issuers and certificates. |
 | `30` | Istio base APIs, CRDs, and validating webhook bootstrap. |
 | `40` | Istio control plane runtime, currently `istiod` with revision `stable`. |
+| `45` | Istio CNI node agent, installed after `istiod` and before meshed workloads. |
 | `50` | Istio ingress gateway or other mesh data-plane gateway components. |
 | `60` | Platform-owned mesh and ingress configuration, such as Gateway API resources and namespace-level mesh defaults. |
 | `70` | Application workloads and services. |
