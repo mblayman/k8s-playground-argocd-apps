@@ -1,25 +1,25 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: k8s-playground-service
+  name: gateway-api-config
   namespace: argocd
   labels:
-    app.kubernetes.io/name: k8s-playground-service
+    app.kubernetes.io/name: gateway-api-config
     app.kubernetes.io/part-of: k8s-playground
   annotations:
-    argocd.argoproj.io/sync-wave: "70"
+    argocd.argoproj.io/sync-wave: "60"
 spec:
   project: default
   source:
     repoURL: https://github.com/mblayman/k8s-playground-argocd-apps.git
     targetRevision: HEAD
-    path: components/apps/k8s-playground-service
+    path: components/platform/gateway-api-config
   destination:
     server: https://kubernetes.default.svc
-    namespace: k8s-playground-service
+    namespace: istio-system
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - ServerSideApply=true
