@@ -4,6 +4,7 @@ helm = "3.21.3"
 [tasks."validate:all"]
 description = "Run all Argo app wiring and render validations"
 run = '''
+mise run validate:argocd-repositories
 mise run validate:cert-manager
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
@@ -13,6 +14,36 @@ mise run validate:istio-base
 mise run validate:istiod
 mise run validate:istio-cni
 mise run validate:istio-ingressgateway
+'''
+
+[tasks."validate:argocd-repositories"]
+description = "Validate argocd-repositories Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/argocd-repositories.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/argocd/repositories"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
 '''
 
 [tasks."validate:cert-manager"]

@@ -5,8 +5,7 @@ Application configs for Argo CD for my k8s playground
 
 - `clusters/kind/application.yaml`: root Argo CD `Application` to apply manually after Argo CD is installed in the local kind cluster.
 - `clusters/kind/apps/`: child Argo CD `Application` manifests rendered by the kind root app using Argo CD directory rendering.
-- `components/apps/`: local application component configuration and manifests managed by child apps.
-- `components/platform/`: local platform component configuration for cluster services such as cert-manager and Istio.
+- Moved platform/app desired state lives in `../k8s-playground-platform-config`; child apps here point at that repo.
 
 Initial bootstrap flow:
 
@@ -18,6 +17,7 @@ Validate Helm-backed components:
 
 ```sh
 mise run validate:cert-manager
+mise run validate:argocd-repositories
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
 mise run validate:gateway-api-config
@@ -35,6 +35,7 @@ Use sync waves as coarse platform dependency bands, not arbitrary ordering numbe
 | Wave | Purpose |
 | ---: | --- |
 | `0` | Cluster API extensions and CRDs not owned by an in-cluster controller app, such as Gateway API CRDs. |
+| `5` | Argo CD repository/config prerequisites needed before Helm-backed wrapper apps, such as public Helm repository Secrets. |
 | `10` | Core platform controllers, such as cert-manager. |
 | `20` | Configuration consumed by core controllers, such as cert-manager issuers and certificates. |
 | `30` | Istio base APIs, CRDs, and validating webhook bootstrap. |
