@@ -86,8 +86,34 @@ description = "Render the Gateway API standard CRDs"
 run = 'kubectl kustomize "https://github.com/kubernetes-sigs/gateway-api/config/crd?ref=v1.6.0" >/dev/null'
 
 [tasks."validate:gateway-api-config"]
-description = "Render the platform Gateway API config"
-run = "kubectl kustomize components/platform/gateway-api-config >/dev/null"
+description = "Validate gateway-api-config Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/gateway-api-config.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/gateway-api-config"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
 
 [tasks."validate:k8s-playground-service"]
 description = "Render the k8s-playground-service app manifests"

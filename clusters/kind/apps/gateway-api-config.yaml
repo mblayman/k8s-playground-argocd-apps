@@ -11,9 +11,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/mblayman/k8s-playground-argocd-apps.git
-    targetRevision: HEAD
-    path: components/platform/gateway-api-config
+    repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
+    targetRevision: main
+    path: platform/gateway-api-config
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
