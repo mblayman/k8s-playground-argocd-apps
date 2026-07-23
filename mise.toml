@@ -146,13 +146,37 @@ kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
 '''
 
 [tasks."validate:istio-base"]
-description = "Render the Istio base Helm chart with local values"
+description = "Validate istio-base Application wiring and external values render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
 run = '''
+app="clusters/kind/apps/istio-base.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+values_path="platform/istio/base/values.yaml"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"- \$values/$values_path"*) ;;
+  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+esac
+
 helm template istio-base base \
   --repo https://istio-release.storage.googleapis.com/charts \
   --version 1.30.2 \
   --namespace istio-system \
-  --values components/platform/istio/base/values.yaml \
+  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
