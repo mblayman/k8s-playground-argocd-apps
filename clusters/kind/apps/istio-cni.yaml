@@ -17,9 +17,9 @@ spec:
       helm:
         releaseName: istio-cni
         valueFiles:
-          - $values/components/platform/istio/cni/values.yaml
-    - repoURL: https://github.com/mblayman/k8s-playground-argocd-apps.git
-      targetRevision: HEAD
+          - $values/platform/istio/cni/values.yaml
+    - repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
+      targetRevision: main
       ref: values
   destination:
     server: https://kubernetes.default.svc
