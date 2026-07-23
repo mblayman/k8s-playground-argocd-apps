@@ -1,15 +1,53 @@
 [tools]
 helm = "3.21.3"
 
-[tasks."validate:cert-manager"]
-description = "Render the cert-manager Helm chart with local values"
+[tasks."validate:all"]
+description = "Run all Argo app wiring and render validations"
 run = '''
+mise run validate:cert-manager
+mise run validate:cert-manager-config
+mise run validate:gateway-api-crds
+mise run validate:gateway-api-config
+mise run validate:k8s-playground-service
+mise run validate:istio-base
+mise run validate:istiod
+mise run validate:istio-cni
+mise run validate:istio-ingressgateway
+'''
+
+[tasks."validate:cert-manager"]
+description = "Validate cert-manager Application wiring and external values render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/cert-manager.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+values_path="platform/cert-manager/values.yaml"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"- \$values/$values_path"*) ;;
+  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+esac
+
 helm template cert-manager cert-manager \
   --repo https://charts.jetstack.io \
   --version v1.21.0 \
   --namespace cert-manager \
   --include-crds \
-  --values components/platform/cert-manager/values.yaml \
+  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
