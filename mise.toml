@@ -16,7 +16,7 @@ mise run validate:istio-ingressgateway
 '''
 
 [tasks."validate:cert-manager"]
-description = "Validate cert-manager Application wiring and external values render"
+description = "Validate cert-manager Application wiring and wrapper chart render"
 usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
@@ -24,30 +24,34 @@ run = '''
 app="clusters/kind/apps/cert-manager.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-values_path="platform/cert-manager/values.yaml"
+source_path="platform/cert-manager"
+release_name="cert-manager"
 application="$(<"$app")"
 
 case "$application" in
   *"repoURL: $repo_url"*) ;;
-  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
 esac
 
 case "$application" in
   *"targetRevision: $target_revision"*) ;;
-  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
 case "$application" in
-  *"- \$values/$values_path"*) ;;
-  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
-helm template cert-manager cert-manager \
-  --repo https://charts.jetstack.io \
-  --version v1.21.0 \
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
   --namespace cert-manager \
   --include-crds \
-  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
@@ -146,7 +150,7 @@ kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
 '''
 
 [tasks."validate:istio-base"]
-description = "Validate istio-base Application wiring and external values render"
+description = "Validate istio-base Application wiring and wrapper chart render"
 usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
@@ -154,34 +158,38 @@ run = '''
 app="clusters/kind/apps/istio-base.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-values_path="platform/istio/base/values.yaml"
+source_path="platform/istio/base"
+release_name="istio-base"
 application="$(<"$app")"
 
 case "$application" in
   *"repoURL: $repo_url"*) ;;
-  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
 esac
 
 case "$application" in
   *"targetRevision: $target_revision"*) ;;
-  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
 case "$application" in
-  *"- \$values/$values_path"*) ;;
-  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
-helm template istio-base base \
-  --repo https://istio-release.storage.googleapis.com/charts \
-  --version 1.30.2 \
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
   --namespace istio-system \
-  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
 [tasks."validate:istiod"]
-description = "Validate istiod Application wiring and external values render"
+description = "Validate istiod Application wiring and wrapper chart render"
 usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
@@ -189,34 +197,38 @@ run = '''
 app="clusters/kind/apps/istiod.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-values_path="platform/istio/istiod/values.yaml"
+source_path="platform/istio/istiod"
+release_name="istiod"
 application="$(<"$app")"
 
 case "$application" in
   *"repoURL: $repo_url"*) ;;
-  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
 esac
 
 case "$application" in
   *"targetRevision: $target_revision"*) ;;
-  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
 case "$application" in
-  *"- \$values/$values_path"*) ;;
-  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
-helm template istiod istiod \
-  --repo https://istio-release.storage.googleapis.com/charts \
-  --version 1.30.2 \
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
   --namespace istio-system \
-  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
 [tasks."validate:istio-cni"]
-description = "Validate istio-cni Application wiring and external values render"
+description = "Validate istio-cni Application wiring and wrapper chart render"
 usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
@@ -224,34 +236,38 @@ run = '''
 app="clusters/kind/apps/istio-cni.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-values_path="platform/istio/cni/values.yaml"
+source_path="platform/istio/cni"
+release_name="istio-cni"
 application="$(<"$app")"
 
 case "$application" in
   *"repoURL: $repo_url"*) ;;
-  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
 esac
 
 case "$application" in
   *"targetRevision: $target_revision"*) ;;
-  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
 case "$application" in
-  *"- \$values/$values_path"*) ;;
-  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
-helm template istio-cni cni \
-  --repo https://istio-release.storage.googleapis.com/charts \
-  --version 1.30.2 \
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
   --namespace istio-system \
-  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''
 
 [tasks."validate:istio-ingressgateway"]
-description = "Validate istio-ingressgateway Application wiring and external values render"
+description = "Validate istio-ingressgateway Application wiring and wrapper chart render"
 usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
@@ -259,28 +275,32 @@ run = '''
 app="clusters/kind/apps/istio-ingressgateway.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-values_path="platform/istio/ingressgateway/values.yaml"
+source_path="platform/istio/ingressgateway"
+release_name="istio-ingressgateway"
 application="$(<"$app")"
 
 case "$application" in
   *"repoURL: $repo_url"*) ;;
-  *) echo "$app does not point values at $repo_url" >&2; exit 1 ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
 esac
 
 case "$application" in
   *"targetRevision: $target_revision"*) ;;
-  *) echo "$app does not use targetRevision $target_revision for values" >&2; exit 1 ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
 case "$application" in
-  *"- \$values/$values_path"*) ;;
-  *) echo "$app does not use value file \$values/$values_path" >&2; exit 1 ;;
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
-helm template istio-ingressgateway gateway \
-  --repo https://istio-release.storage.googleapis.com/charts \
-  --version 1.30.2 \
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
   --namespace istio-system \
-  --values "{{ usage.platform_config }}/$values_path" \
   >/dev/null
 '''

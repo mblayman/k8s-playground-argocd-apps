@@ -10,17 +10,12 @@ metadata:
     argocd.argoproj.io/sync-wave: "50"
 spec:
   project: default
-  sources:
-    - repoURL: https://istio-release.storage.googleapis.com/charts
-      chart: gateway
-      targetRevision: 1.30.2
-      helm:
-        releaseName: istio-ingressgateway
-        valueFiles:
-          - $values/platform/istio/ingressgateway/values.yaml
-    - repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
-      targetRevision: main
-      ref: values
+  source:
+    repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
+    targetRevision: main
+    path: platform/istio/ingressgateway
+    helm:
+      releaseName: istio-ingressgateway
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
