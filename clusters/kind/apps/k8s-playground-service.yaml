@@ -11,9 +11,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/mblayman/k8s-playground-argocd-apps.git
-    targetRevision: HEAD
-    path: components/apps/k8s-playground-service
+    repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
+    targetRevision: main
+    path: apps/k8s-playground-service
   destination:
     server: https://kubernetes.default.svc
     namespace: k8s-playground-service
