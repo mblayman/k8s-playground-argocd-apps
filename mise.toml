@@ -14,8 +14,34 @@ helm template cert-manager cert-manager \
 '''
 
 [tasks."validate:cert-manager-config"]
-description = "Render the local cert-manager issuer and certificate config"
-run = "kubectl kustomize components/platform/cert-manager-config >/dev/null"
+description = "Validate cert-manager-config Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/cert-manager-config.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/cert-manager-config"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
 
 [tasks."validate:gateway-api-crds"]
 description = "Render the Gateway API standard CRDs"
