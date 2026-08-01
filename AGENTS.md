@@ -12,6 +12,7 @@ Current wrapper-chart applications:
 
 - `argocd-repositories` -> `platform/argocd/repositories`
 - `cert-manager` -> `platform/cert-manager`
+- `minio` -> `platform/minio`
 - `istio-base` -> `platform/istio/base`
 - `istiod` -> `platform/istio/istiod`
 - `istio-cni` -> `platform/istio/cni`
