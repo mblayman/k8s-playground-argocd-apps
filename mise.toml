@@ -7,6 +7,7 @@ run = '''
 mise run validate:argocd-repositories
 mise run validate:minio
 mise run validate:observability-object-storage-config
+mise run validate:mimir
 mise run validate:cert-manager
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
@@ -167,6 +168,36 @@ app="clusters/kind/apps/observability-object-storage-config.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/observability/object-storage-config"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
+
+[tasks."validate:mimir"]
+description = "Validate mimir Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/mimir.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/observability/mimir"
 application="$(<"$app")"
 
 case "$application" in

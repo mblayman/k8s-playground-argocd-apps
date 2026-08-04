@@ -20,6 +20,7 @@ mise run validate:cert-manager
 mise run validate:argocd-repositories
 mise run validate:minio
 mise run validate:observability-object-storage-config
+mise run validate:mimir
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
 mise run validate:gateway-api-config
