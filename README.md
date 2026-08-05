@@ -21,6 +21,7 @@ mise run validate:argocd-repositories
 mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
+mise run validate:alloy
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
 mise run validate:gateway-api-config
@@ -42,8 +43,8 @@ Use sync waves as coarse platform dependency bands, not arbitrary ordering numbe
 | `10` | Core platform foundations that do not depend on Istio, such as cert-manager and kind-local object storage with MinIO. |
 | `20` | Configuration consumed by core foundations, such as cert-manager issuers/certificates and MinIO buckets or backend object-storage credentials. |
 | `25` | Core observability metrics storage that should exist before workloads, starting with Mimir. |
-| `30` | Istio base APIs, CRDs, and validating webhook bootstrap. |
-| `35` | Core observability collection, UI, and datasource wiring, especially Alloy Kubernetes/node metrics collection and Grafana backed by Mimir. |
+| `30` | Platform API foundations and telemetry agents that depend on earlier storage backends, currently Istio base APIs and Alloy Kubernetes/node metrics collection. |
+| `35` | Observability UI and datasource wiring, especially Grafana backed by Mimir. |
 | `40` | Istio control plane runtime, currently `istiod` with revision `stable`. |
 | `45` | Istio CNI node agent, installed after `istiod` and before meshed workloads. |
 | `50` | Istio ingress gateway or other mesh data-plane gateway components. |

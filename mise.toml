@@ -8,6 +8,7 @@ mise run validate:argocd-repositories
 mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
+mise run validate:alloy
 mise run validate:cert-manager
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
@@ -216,6 +217,45 @@ case "$application" in
 esac
 
 kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
+
+[tasks."validate:alloy"]
+description = "Validate alloy Application wiring and wrapper chart render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/alloy.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/observability/alloy"
+release_name="alloy"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
+  --namespace observability-collectors \
+  >/dev/null
 '''
 
 [tasks."validate:gateway-api-crds"]
