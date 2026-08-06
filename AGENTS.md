@@ -14,6 +14,7 @@ Current wrapper-chart applications:
 - `cert-manager` -> `platform/cert-manager`
 - `minio` -> `platform/minio`
 - `alloy` -> `platform/observability/alloy`
+- `grafana` -> `platform/observability/grafana`
 - `istio-base` -> `platform/istio/base`
 - `istiod` -> `platform/istio/istiod`
 - `istio-cni` -> `platform/istio/cni`
