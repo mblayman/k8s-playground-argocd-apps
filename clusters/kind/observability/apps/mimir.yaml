@@ -1,21 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: grafana
+  name: mimir
   namespace: argocd
   labels:
-    app.kubernetes.io/name: grafana
+    app.kubernetes.io/name: mimir
     app.kubernetes.io/part-of: k8s-playground
   annotations:
-    argocd.argoproj.io/sync-wave: "35"
+    argocd.argoproj.io/sync-wave: "25"
 spec:
-  project: default
+  project: observability
   source:
     repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
     targetRevision: main
-    path: platform/observability/grafana
-    helm:
-      releaseName: grafana
+    path: platform/observability/mimir
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
@@ -25,4 +23,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true

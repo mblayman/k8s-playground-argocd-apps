@@ -4,6 +4,7 @@ helm = "3.21.3"
 [tasks."validate:all"]
 description = "Run all Argo app wiring and render validations"
 run = '''
+mise run validate:kind-roots
 mise run validate:argocd-repositories
 mise run validate:argocd-config
 mise run validate:minio
@@ -23,6 +24,10 @@ mise run validate:istio-cni
 mise run validate:istio-ingressgateway
 mise run validate:istio-managementgateway
 '''
+
+[tasks."validate:kind-roots"]
+description = "Validate kind root ownership and observability project boundaries"
+run = "ruby scripts/validate-kind-roots.rb"
 
 [tasks."validate:argocd-repositories"]
 description = "Validate argocd-repositories Application wiring and external source render"
@@ -227,7 +232,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/mimir.yaml"
+app="clusters/kind/observability/apps/mimir.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/observability/mimir"
@@ -257,7 +262,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/alloy.yaml"
+app="clusters/kind/application/apps/alloy.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/observability/alloy"
@@ -296,7 +301,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/grafana.yaml"
+app="clusters/kind/observability/apps/grafana.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/observability/grafana"
@@ -339,7 +344,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/gateway-api-config.yaml"
+app="clusters/kind/application/apps/gateway-api-config.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/gateway-api-config"
@@ -369,7 +374,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/management-gateway-config.yaml"
+app="clusters/kind/application/apps/management-gateway-config.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/management-gateway-config"
@@ -397,7 +402,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/k8s-playground-service.yaml"
+app="clusters/kind/application/apps/k8s-playground-service.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="apps/k8s-playground-service"
@@ -427,7 +432,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/istio-base.yaml"
+app="clusters/kind/application/apps/istio-base.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/istio/base"
@@ -466,7 +471,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/istiod.yaml"
+app="clusters/kind/application/apps/istiod.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/istio/istiod"
@@ -505,7 +510,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/istio-cni.yaml"
+app="clusters/kind/application/apps/istio-cni.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/istio/cni"
@@ -544,7 +549,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/istio-ingressgateway.yaml"
+app="clusters/kind/application/apps/istio-ingressgateway.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/istio/ingressgateway"
@@ -583,7 +588,7 @@ usage = '''
 flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
 '''
 run = '''
-app="clusters/kind/apps/istio-managementgateway.yaml"
+app="clusters/kind/application/apps/istio-managementgateway.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
 source_path="platform/istio/managementgateway"

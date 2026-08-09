@@ -4,6 +4,14 @@
 
 This repo owns Argo CD `Application` wiring, not the Kubernetes desired state for moved platform/app components.
 
+The kind environment has three independently reconciled roots:
+
+- `clusters/kind/shared.yaml` owns shared/substrate wiring under `clusters/kind/apps/`.
+- `clusters/kind/application.yaml` owns application-cluster wiring under `clusters/kind/application/apps/`.
+- `clusters/kind/observability.yaml` owns central observability wiring under `clusters/kind/observability/apps/`.
+
+Keep MinIO and observability object-storage provisioning in the shared root. Keep Alloy with the application-cluster root. Keep Mimir, Grafana, Tempo, Loki, Pyroscope, and alerting components in the observability root. Child Application waves provide coarse creation order, not cross-Application readiness guarantees.
+
 For components moved to `k8s-playground-platform-config`, keep `Application` resources as single-source pointers to that repo and path. Do not put the component manifests or Helm values back under `components/` here.
 
 For wrapper-chart Helm components, the upstream chart repo, chart name, chart version, values, and `Chart.lock` live in `k8s-playground-platform-config`. The `Application` here should only point at the wrapper chart path and preserve the Helm release name.

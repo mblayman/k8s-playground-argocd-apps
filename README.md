@@ -3,19 +3,26 @@ Application configs for Argo CD for my k8s playground
 
 ## Structure
 
-- `clusters/kind/application.yaml`: root Argo CD `Application` to apply manually after Argo CD is installed in the local kind cluster.
-- `clusters/kind/apps/`: child Argo CD `Application` manifests rendered by the kind root app using Argo CD directory rendering.
-- Moved platform/app desired state lives in `../k8s-playground-platform-config`; child apps here point at that repo.
+- `clusters/kind/shared.yaml`: shared/substrate root for Argo configuration, cert-manager, MinIO, Gateway API CRDs, and object-storage provisioning.
+- `clusters/kind/application.yaml`: application-cluster root for Istio, gateways, Alloy, and application workloads.
+- `clusters/kind/observability.yaml`: observability root for central backends and UI workloads.
+- `clusters/kind/apps/`: shared/substrate child Applications and the restricted `observability` AppProject.
+- `clusters/kind/application/apps/`: application-cluster child Applications.
+- `clusters/kind/observability/apps/`: observability child Applications.
+- Kubernetes desired state lives in `../k8s-playground-platform-config`; child apps here only point at that repo.
 
 Initial bootstrap flow:
 
 ```sh
+kubectl --context kind-k8s-playground apply -f clusters/kind/shared.yaml
+kubectl --context kind-k8s-playground apply -f clusters/kind/observability.yaml
 kubectl --context kind-k8s-playground apply -f clusters/kind/application.yaml
 ```
 
 Validate Helm-backed components:
 
 ```sh
+mise run validate:kind-roots
 mise run validate:cert-manager
 mise run validate:argocd-repositories
 mise run validate:argocd-config
@@ -38,7 +45,7 @@ mise run validate:istio-managementgateway
 
 ## Sync Wave Contract
 
-Use sync waves as coarse platform dependency bands, not arbitrary ordering numbers. Keep future child `Application` manifests in this table unless there is a concrete reason to add a new band.
+Use sync waves as coarse creation-order bands inside each independently reconciled root, not as cross-Application readiness orchestration. Keep future child `Application` manifests in this table unless there is a concrete reason to add a new band.
 
 | Wave | Purpose |
 | ---: | --- |
@@ -60,11 +67,11 @@ Use sync waves as coarse platform dependency bands, not arbitrary ordering numbe
 Guardrails:
 
 - Keep Istio validation fail-closed in steady state with `failurePolicy: Fail`.
-- Do not create Istio custom resources before wave `40` has installed a healthy `istiod`.
-- Put resources that depend on a CRD in a later wave than the CRD owner.
-- Put resources that depend on an admission webhook in a later wave than the controller serving that webhook.
+- Treat child Application waves as creation order only; each child reconciles and reports sync/health independently.
+- Keep hard resource dependencies inside one Application when resource-level health-gated waves are required.
+- Use lower child waves for CRD owners and admission controllers, then rely on Argo's bounded default sync retries and idempotent reconciliation for consumers.
 - Treat non-Git Secrets required before a Helm app starts as bootstrap inputs, not ordinary later-wave configuration. For example, a MinIO `existingSecret` must be created by local bootstrap before the MinIO app syncs.
-- Keep foundational observability before application wave `70` so metrics/log collectors are already online when workloads start during a scratch rebuild.
+- Keep application and observability roots independent; application availability must not depend on observability health.
 - Keep app-specific dashboards and alert rules after application wave `70` when they depend on labels, routes, or service names from app components.
 - Prefer resource-level sync waves inside an app component before splitting app-owned resources into separate child apps.
 - Avoid inventing new sync wave numbers unless the dependency cannot fit an existing band.

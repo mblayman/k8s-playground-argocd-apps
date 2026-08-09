@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: observability
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: observability
+    app.kubernetes.io/part-of: k8s-playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  description: Central observability backends and user interfaces
+  sourceRepos:
+    - https://github.com/mblayman/k8s-playground-platform-config.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: observability
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  orphanedResources:
+    warn: true
