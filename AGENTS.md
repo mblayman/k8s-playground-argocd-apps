@@ -22,7 +22,7 @@ Current wrapper-chart applications:
 - `argocd-config` -> `platform/argocd/config`
 - `cert-manager` -> `platform/cert-manager`
 - `minio` -> `platform/minio`
-- `alloy` -> `platform/observability/alloy`
+- `alloy` -> `platform/collectors/alloy`
 - `grafana` -> `platform/observability/grafana`
 - `istio-base` -> `platform/istio/base`
 - `istiod` -> `platform/istio/istiod`

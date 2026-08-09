@@ -7,13 +7,13 @@ metadata:
     app.kubernetes.io/name: alloy
     app.kubernetes.io/part-of: k8s-playground
   annotations:
-    argocd.argoproj.io/sync-wave: "30"
+    argocd.argoproj.io/sync-wave: "55"
 spec:
   project: default
   source:
     repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
     targetRevision: main
-    path: platform/observability/alloy
+    path: platform/collectors/alloy
     helm:
       releaseName: alloy
   destination:
@@ -23,6 +23,9 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        istio.io/rev: stable
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true

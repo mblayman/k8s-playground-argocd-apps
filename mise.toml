@@ -265,7 +265,7 @@ run = '''
 app="clusters/kind/application/apps/alloy.yaml"
 repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
 target_revision="main"
-source_path="platform/observability/alloy"
+source_path="platform/collectors/alloy"
 release_name="alloy"
 application="$(<"$app")"
 
@@ -288,6 +288,12 @@ case "$application" in
   *"releaseName: $release_name"*) ;;
   *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
 esac
+
+ruby -ryaml -e '
+  application = YAML.load_file(ARGV.fetch(0))
+  abort "Alloy must use child creation wave 55" unless application.dig("metadata", "annotations", "argocd.argoproj.io/sync-wave") == "55"
+  abort "Alloy namespace must select Istio revision stable" unless application.dig("spec", "syncPolicy", "managedNamespaceMetadata", "labels", "istio.io/rev") == "stable"
+' "$app"
 
 helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
 helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
