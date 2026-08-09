@@ -18,6 +18,7 @@ Validate Helm-backed components:
 ```sh
 mise run validate:cert-manager
 mise run validate:argocd-repositories
+mise run validate:argocd-config
 mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
@@ -26,11 +27,13 @@ mise run validate:grafana
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
 mise run validate:gateway-api-config
+mise run validate:management-gateway-config
 mise run validate:k8s-playground-service
 mise run validate:istio-base
 mise run validate:istiod
 mise run validate:istio-cni
 mise run validate:istio-ingressgateway
+mise run validate:istio-managementgateway
 ```
 
 ## Sync Wave Contract
@@ -45,12 +48,12 @@ Use sync waves as coarse platform dependency bands, not arbitrary ordering numbe
 | `20` | Configuration consumed by core foundations, such as cert-manager issuers/certificates and MinIO buckets or backend object-storage credentials. |
 | `25` | Core observability metrics storage that should exist before workloads, starting with Mimir. |
 | `30` | Platform API foundations and telemetry agents that depend on earlier storage backends, currently Istio base APIs and Alloy Kubernetes/node metrics collection. |
-| `35` | Observability UI and datasource wiring, especially Grafana backed by Mimir. |
+| `35` | Management and observability UI runtime configuration, including Argo CD server settings and Grafana backed by Mimir. |
 | `40` | Istio control plane runtime, currently `istiod` with revision `stable`. |
 | `45` | Istio CNI node agent, installed after `istiod` and before meshed workloads. |
-| `50` | Istio ingress gateway or other mesh data-plane gateway components. |
+| `50` | Istio user and management ingress gateway data-plane components. |
 | `55` | Additional telemetry layers that should be available before app workloads where practical, such as Loki log collection, Pyroscope, Tempo, and Beyla. |
-| `60` | Platform-owned mesh, ingress, and telemetry integration configuration, such as `GatewayClass`, shared `Gateway`, namespace-level mesh defaults, and Istio-to-collector settings. |
+| `60` | Platform-owned mesh, ingress, and telemetry integration configuration, including user and management Gateways, certificates, routes, namespace-level mesh defaults, and Istio-to-collector settings. |
 | `70` | Application components, including workloads, services, and app-owned routes when internal resource ordering is sufficient. |
 | `80` | Dashboards, alerting configuration, and other late visualization or operations resources that can reference app-specific signals. |
 

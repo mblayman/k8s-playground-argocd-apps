@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-config
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-config
+    app.kubernetes.io/part-of: k8s-playground
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/mblayman/k8s-playground-platform-config.git
+    targetRevision: main
+    path: platform/argocd/config
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

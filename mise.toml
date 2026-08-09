@@ -5,6 +5,7 @@ helm = "3.21.3"
 description = "Run all Argo app wiring and render validations"
 run = '''
 mise run validate:argocd-repositories
+mise run validate:argocd-config
 mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
@@ -14,11 +15,13 @@ mise run validate:cert-manager
 mise run validate:cert-manager-config
 mise run validate:gateway-api-crds
 mise run validate:gateway-api-config
+mise run validate:management-gateway-config
 mise run validate:k8s-playground-service
 mise run validate:istio-base
 mise run validate:istiod
 mise run validate:istio-cni
 mise run validate:istio-ingressgateway
+mise run validate:istio-managementgateway
 '''
 
 [tasks."validate:argocd-repositories"]
@@ -43,6 +46,34 @@ case "$application" in
   *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
 esac
 
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
+
+[tasks."validate:argocd-config"]
+description = "Validate argocd-config Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/argocd-config.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/argocd/config"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
 case "$application" in
   *"path: $source_path"*) ;;
   *) echo "$app does not point at $source_path" >&2; exit 1 ;;
@@ -332,6 +363,34 @@ esac
 kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
 '''
 
+[tasks."validate:management-gateway-config"]
+description = "Validate management-gateway-config Application wiring and external source render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/management-gateway-config.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/management-gateway-config"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+kubectl kustomize "{{ usage.platform_config }}/$source_path" >/dev/null
+'''
+
 [tasks."validate:k8s-playground-service"]
 description = "Validate k8s-playground-service Application wiring and external source render"
 usage = '''
@@ -507,6 +566,42 @@ case "$application" in
   *) echo "$app does not point at $source_path" >&2; exit 1 ;;
 esac
 
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
+  --namespace istio-system \
+  >/dev/null
+'''
+
+[tasks."validate:istio-managementgateway"]
+description = "Validate istio-managementgateway Application wiring and wrapper chart render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/apps/istio-managementgateway.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/istio/managementgateway"
+release_name="istio-managementgateway"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
 case "$application" in
   *"releaseName: $release_name"*) ;;
   *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;

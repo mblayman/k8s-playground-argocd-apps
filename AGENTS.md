@@ -11,6 +11,7 @@ For wrapper-chart Helm components, the upstream chart repo, chart name, chart ve
 Current wrapper-chart applications:
 
 - `argocd-repositories` -> `platform/argocd/repositories`
+- `argocd-config` -> `platform/argocd/config`
 - `cert-manager` -> `platform/cert-manager`
 - `minio` -> `platform/minio`
 - `alloy` -> `platform/observability/alloy`
@@ -19,6 +20,7 @@ Current wrapper-chart applications:
 - `istiod` -> `platform/istio/istiod`
 - `istio-cni` -> `platform/istio/cni`
 - `istio-ingressgateway` -> `platform/istio/ingressgateway`
+- `istio-managementgateway` -> `platform/istio/managementgateway`
 
 `argocd-repositories` is intentionally not a wrapper chart. It declares Argo CD repository Secrets for public Helm chart sources used by wrapper dependencies. Add future public Helm dependency repository URLs there instead of changing kind bootstrap.
 
