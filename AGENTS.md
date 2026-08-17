@@ -24,6 +24,7 @@ Current wrapper-chart applications:
 - `minio` -> `platform/minio`
 - `alloy` -> `platform/collectors/alloy`
 - `grafana` -> `platform/observability/grafana`
+- `tempo` -> `platform/observability/tempo`
 - `istio-base` -> `platform/istio/base`
 - `istiod` -> `platform/istio/istiod`
 - `istio-cni` -> `platform/istio/cni`

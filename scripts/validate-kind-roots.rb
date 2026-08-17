@@ -42,6 +42,7 @@ EXPECTED_CHILDREN = {
   "clusters/kind/observability/apps" => Set.new(%w[
     grafana
     mimir
+    tempo
   ])
 }.freeze
 

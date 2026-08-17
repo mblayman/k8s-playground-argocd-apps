@@ -29,6 +29,7 @@ mise run validate:argocd-config
 mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
+mise run validate:tempo
 mise run validate:alloy
 mise run validate:grafana
 mise run validate:cert-manager-config
@@ -53,7 +54,7 @@ Use sync waves as coarse creation-order bands inside each independently reconcil
 | `5` | Argo CD repository/config prerequisites needed before Helm-backed wrapper apps, such as public Helm repository Secrets. |
 | `10` | Core platform foundations that do not depend on Istio, such as cert-manager and kind-local object storage with MinIO. |
 | `20` | Configuration consumed by core foundations, such as cert-manager issuers/certificates and MinIO buckets or backend object-storage credentials. |
-| `25` | Core observability metrics storage that should exist before workloads, starting with Mimir. |
+| `25` | Core observability backend storage that should exist before workloads, including Mimir and Tempo. |
 | `30` | Platform API foundations, currently Istio base APIs. |
 | `35` | Management and observability UI runtime configuration, including Argo CD server settings and Grafana backed by Mimir. |
 | `40` | Istio control plane runtime, currently `istiod` with revision `stable`. |
