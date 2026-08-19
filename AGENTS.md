@@ -25,6 +25,7 @@ Current wrapper-chart applications:
 - `alloy` -> `platform/collectors/alloy`
 - `grafana` -> `platform/observability/grafana`
 - `tempo` -> `platform/observability/tempo`
+- `loki` -> `platform/observability/loki`
 - `istio-base` -> `platform/istio/base`
 - `istiod` -> `platform/istio/istiod`
 - `istio-cni` -> `platform/istio/cni`

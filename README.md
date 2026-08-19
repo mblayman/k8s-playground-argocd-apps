@@ -30,6 +30,7 @@ mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
 mise run validate:tempo
+mise run validate:loki
 mise run validate:alloy
 mise run validate:grafana
 mise run validate:cert-manager-config

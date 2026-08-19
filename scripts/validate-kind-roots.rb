@@ -41,6 +41,7 @@ EXPECTED_CHILDREN = {
   ]),
   "clusters/kind/observability/apps" => Set.new(%w[
     grafana
+    loki
     mimir
     tempo
   ])

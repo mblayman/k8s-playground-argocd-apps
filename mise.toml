@@ -11,6 +11,7 @@ mise run validate:minio
 mise run validate:observability-object-storage-config
 mise run validate:mimir
 mise run validate:tempo
+mise run validate:loki
 mise run validate:alloy
 mise run validate:grafana
 mise run validate:cert-manager
@@ -295,6 +296,52 @@ ruby -ryaml -e '
   abort "Tempo must use child creation wave 25" unless application.dig("metadata", "annotations", "argocd.argoproj.io/sync-wave") == "25"
   abort "Tempo must use project observability" unless application.dig("spec", "project") == "observability"
   abort "Tempo must target namespace observability" unless application.dig("spec", "destination", "namespace") == "observability"
+' "$app"
+
+helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
+helm template "$release_name" "{{ usage.platform_config }}/$source_path" \
+  --namespace observability \
+  >/dev/null
+'''
+
+[tasks."validate:loki"]
+description = "Validate loki Application wiring and wrapper chart render"
+usage = '''
+flag "--platform-config <platform-config>" help="local platform-config repo path" default="../k8s-playground-platform-config"
+'''
+run = '''
+app="clusters/kind/observability/apps/loki.yaml"
+repo_url="https://github.com/mblayman/k8s-playground-platform-config.git"
+target_revision="main"
+source_path="platform/observability/loki"
+release_name="loki"
+application="$(<"$app")"
+
+case "$application" in
+  *"repoURL: $repo_url"*) ;;
+  *) echo "$app does not point at $repo_url" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"targetRevision: $target_revision"*) ;;
+  *) echo "$app does not use targetRevision $target_revision" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"path: $source_path"*) ;;
+  *) echo "$app does not point at $source_path" >&2; exit 1 ;;
+esac
+
+case "$application" in
+  *"releaseName: $release_name"*) ;;
+  *) echo "$app does not use releaseName $release_name" >&2; exit 1 ;;
+esac
+
+ruby -ryaml -e '
+  application = YAML.load_file(ARGV.fetch(0))
+  abort "Loki must use child creation wave 25" unless application.dig("metadata", "annotations", "argocd.argoproj.io/sync-wave") == "25"
+  abort "Loki must use project observability" unless application.dig("spec", "project") == "observability"
+  abort "Loki must target namespace observability" unless application.dig("spec", "destination", "namespace") == "observability"
 ' "$app"
 
 helm dependency update "{{ usage.platform_config }}/$source_path" >/dev/null
